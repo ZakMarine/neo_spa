@@ -54,7 +54,7 @@ export default class App extends Component<props, state>{
                     data:this.state.neoObjects, //assign data to table
                     layout:"fitColumns", //fit columns to width of table (optional).
                     pagination:true,
-                    paginationSize:9,
+                    // paginationSize:9,
                     //@ts-ignore
                     rowHeight:40, //set rows to 40px height
                     // paginationSize:5,
@@ -138,7 +138,7 @@ export default class App extends Component<props, state>{
             name: neo.name,
             hazard: neo.is_potentially_hazardous_asteroid,
             sentry: neo.is_sentry_object,
-            estimatedDiameter: (neo.estimated_diameter["kilometers"].estimated_diameter_max + neo.estimated_diameter["kilometers"].estimated_diameter_min) / 2,
+            estimatedDiameter: Math.floor(((neo.estimated_diameter["kilometers"].estimated_diameter_max + neo.estimated_diameter["kilometers"].estimated_diameter_min) / 2) * 100) / 100,
             self: neo.links.self
         }
     }

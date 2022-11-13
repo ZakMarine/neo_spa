@@ -42,7 +42,7 @@ class App extends react_1.Component {
                 name: neo.name,
                 hazard: neo.is_potentially_hazardous_asteroid,
                 sentry: neo.is_sentry_object,
-                estimatedDiameter: (neo.estimated_diameter["kilometers"].estimated_diameter_max + neo.estimated_diameter["kilometers"].estimated_diameter_min) / 2,
+                estimatedDiameter: Math.floor(((neo.estimated_diameter["kilometers"].estimated_diameter_max + neo.estimated_diameter["kilometers"].estimated_diameter_min) / 2) * 100) / 100,
                 self: neo.links.self
             };
         };
@@ -173,7 +173,6 @@ class App extends react_1.Component {
                     data: this.state.neoObjects,
                     layout: "fitColumns",
                     pagination: true,
-                    paginationSize: 9,
                     rowHeight: 40,
                     columns: [
                         { title: "Name", field: "name" },

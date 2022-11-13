@@ -7,17 +7,15 @@ $primary-background: #141416;
 // $secondary-background: #7475725c;
 $secondary-background: #3c373e;
 
-body{
-    background-color: $primary-background;
-}
 
 #root{
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    // height: 100vh;
     width: 100vw;
     // margin: 1%;
     background: $secondary-background;
+    overflow-x: hidden;
     // border-radius: 10px;
 }
 
@@ -136,12 +134,13 @@ button:hover{
     
     p{
         text-align: center;
+        margin: 0;
     }
 }
 
 #NEO-container{
     width: 50%;
-    overflow-y: scroll;
+    // overflow-y: scroll;
     display: flex;
     flex-direction: column;
 
@@ -151,7 +150,7 @@ button:hover{
 }
 
 #encounter-container{
-    overflow-y: scroll;
+    // overflow-y: scroll;
     display: flex;
     flex-direction: column;
     width: 50%;
@@ -249,7 +248,7 @@ button:hover{
     border-bottom-left-radius: 10px;
 }
 
-@media screen and (max-width: 800px) {
+@media screen and (max-width: 1400px) {
     #root{
         flex-direction: column;
     }
@@ -257,6 +256,7 @@ button:hover{
         position: initial;
         width: 100%;
         margin: 10px 0;
+        flex-direction: column;
     }
 
     #bottom-container{
@@ -275,6 +275,36 @@ button:hover{
     #field-container{
         border-radius: 10px;
     }
+
+    #NEO-container{
+        width: 100%;
+    }
+
+    #encounter-container{
+        width: 100%;
+    }
+
+    #login-container{
+    
+        #login-inner{
+            width: 80%;
+        }
+    }
+}
+
+@media screen and (max-height: 750px) {
+    .column-container{
+        flex-direction: column;
+    }
+    
+    #NEO-container{
+        width: 100%;
+    }
+
+    #encounter-container{
+        width: 100%;
+    }
+
 }
 
 .animate{
