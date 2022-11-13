@@ -1,0 +1,80 @@
+@import  "tabulator-tables";
+//overwriting the default tabulator styling
+
+$table-row-odd: #39343b;
+$table-row-even: #3c373e;
+$selected-colour: #fdd114;
+
+.tabulator-row.tabulator-row-even{
+    background-color: $table-row-even;
+}
+
+.tabulator-row{
+    background-color: $table-row-odd;
+    color: white;
+}
+
+.tabulator .tabulator-header{
+    background-color: $table-row-odd;
+    border: none;
+    color: white;
+}
+
+.tabulator .tabulator-header .tabulator-col{
+    background-color: $table-row-odd;
+    border: none;
+    color: white;
+}
+
+.tabulator .tabulator-header .tabulator-col .tabulator-col-content .tabulator-col-sorter{
+    display: none;
+}
+
+.tabulator{
+    border: none;
+    background-color: transparent;
+    margin: auto auto auto 10px;
+    height: 80%;
+    width: 90%;
+}
+
+.tabulator-row .tabulator-cell{
+    border: none;
+}
+
+.tabulator .tabulator-footer{
+    background-color: transparent;
+    border: none;
+}
+
+.tabulator-selected{
+    background-color: aqua;
+}
+
+.tabulator-row:hover{
+
+    .tabulator-row{
+        color: $selected-colour;
+    }
+
+    .tabulator-cell{
+        color: $selected-colour;
+    }
+}
+
+.tabulator-row.tabulator-selectable.tabulator-row-even:hover{
+    background-color: $table-row-even;
+}
+.tabulator-row.tabulator-selectable.tabulator-row-odd:hover{
+    background-color: $table-row-odd;
+}
+
+.tabulator .tabulator-footer .tabulator-page{
+    color: white;
+    background-color: transparent;
+    border: none;
+}
+
+.tabulator .tabulator-footer .tabulator-page.active{
+    color: #fdd114;
+}

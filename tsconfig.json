@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+        "jsx": "react",
+        "module": "CommonJS",
+        "noImplicitAny": true,
+        "esModuleInterop": true,
+        "removeComments": true,
+        "preserveConstEnums": true,
+        "typeRoots": ["./src/@types"],
+        "moduleResolution": "Node", 
+        "skipLibCheck": true,
+        "lib": ["es6", "dom", "es2017"],
+        "target": "es2016",
+    },
+  }
