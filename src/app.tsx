@@ -7,10 +7,6 @@ import { APIKEY } from './constants'
 import './app.scss'
 import './tabular.scss'
 
-declare type props = {
-    test: string
-}
-
 declare type state = {
     neoObjects: neoObject[],
     prevEncounters: NEOEncounter[]
@@ -19,16 +15,17 @@ declare type state = {
     incorrectPassword: boolean,
     objectID: string | undefined,
     startDate: string | undefined,
-    endDate: string | undefined
+    endDate: string | undefined,
+    animate: boolean
 }
 
-export default class App extends Component<props, state>{
+export default class App extends Component<{}, state>{
 
     neoTable: Tabulator
     prevTable: Tabulator
     nextTable: Tabulator
 
-    constructor(props: props){
+    constructor(props: {}){
         super(props)
 
         this.state = {
@@ -39,12 +36,13 @@ export default class App extends Component<props, state>{
             incorrectPassword: false,
             objectID: undefined,
             startDate: undefined,
-            endDate: undefined
+            endDate: undefined,
+            animate: false
         }
         
     }
 
-    componentDidUpdate(prevProps: Readonly<props>, prevState: Readonly<state>, snapshot?: any): void {
+    componentDidUpdate(prevProps: Readonly<{}>, prevState: Readonly<state>, snapshot?: any): void {
         // if we have an update to the NEO objects
         if (this.state.neoObjects !== prevState.neoObjects){
             // if this is the first request we have to generate the table
@@ -244,22 +242,21 @@ export default class App extends Component<props, state>{
             body: body
         }).then(resp => resp.json())
         .then(data => {
-            //dummy check of a username or password
-            if (username.value === "marinezak@gmail.com" && password.value === "testpassword1"){
-                // if succesful login set loggedIn state to true to remove login overlay
-                this.setState({loggedIn: true})
+            //assumtion of the authentication response with a JWT response is 
+            /*
+
+            {
+                token: jwt-token
             }
-            else{
-                // on an incorrect username password render 
-                this.setState({
-                    incorrectPassword: true
-                })
-            }
+
+            */
+
+            
         })
         //.catch as if no server the request will error
         .catch(() => {
             //dummy check of a username or password
-            if (username.value === "marinezak@gmail.com" && password.value === "testpassword1"){
+            if (username.value === "FourthFloor" && password.value === "testpassword1"){
                 // if succesful login set loggedIn state to true to remove login overlay
                 this.setState({loggedIn: true})
             }
@@ -267,19 +264,21 @@ export default class App extends Component<props, state>{
 
                 // on an incorrect username password render 
                 this.setState({
-                    incorrectPassword: true
+                    incorrectPassword: true,
+                    animate: true
                 }, () => {
                     // run this in a callback so that the error message and animate happen together
                     //assign the animate class
                     password.classList.add("animate")
                     //create timeout to remove class once animation is done
                     //this is so that if the user enters another incorrect password it will animate again
+                    //clear the current entry in the password field and renable login button
                     setTimeout(() => {
-                        password.classList.remove("animate")
+                        password.value = "";
+                        this.setState({animate: false})
                     }, 820)
 
-                    //clear the current entry in the password field and renable login button
-                    password.value = "";
+                    //renable login button
                     document.getElementById("login-button").classList.remove("disabled-btn")
                 })
             }
@@ -371,7 +370,7 @@ export default class App extends Component<props, state>{
                         <label htmlFor='username-input'>Username: </label>
                         <input id="username-input" type="text"></input>
                         <label htmlFor='password-input'>Password: </label>
-                        <input id="password-input" type="password"></input>
+                        <input id="password-input" type="password" className={this.state.animate ? "animate" : ""}></input>
                         <div id="remember">
                             <input id="remember-check"type="checkbox"/>
                             <label htmlFor='remember-check'>Remember Me </label>

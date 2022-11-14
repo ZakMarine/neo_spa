@@ -96,28 +96,21 @@ class App extends react_1.Component {
                 body: body
             }).then(resp => resp.json())
                 .then(data => {
-                if (username.value === "marinezak@gmail.com" && password.value === "testpassword1") {
-                    this.setState({ loggedIn: true });
-                }
-                else {
-                    this.setState({
-                        incorrectPassword: true
-                    });
-                }
             })
                 .catch(() => {
-                if (username.value === "marinezak@gmail.com" && password.value === "testpassword1") {
+                if (username.value === "FourthFloor" && password.value === "testpassword1") {
                     this.setState({ loggedIn: true });
                 }
                 else {
                     this.setState({
-                        incorrectPassword: true
+                        incorrectPassword: true,
+                        animate: true
                     }, () => {
                         password.classList.add("animate");
                         setTimeout(() => {
-                            password.classList.remove("animate");
+                            password.value = "";
+                            this.setState({ animate: false });
                         }, 820);
-                        password.value = "";
                         document.getElementById("login-button").classList.remove("disabled-btn");
                     });
                 }
@@ -163,7 +156,8 @@ class App extends react_1.Component {
             incorrectPassword: false,
             objectID: undefined,
             startDate: undefined,
-            endDate: undefined
+            endDate: undefined,
+            animate: false
         };
     }
     componentDidUpdate(prevProps, prevState, snapshot) {
@@ -269,7 +263,7 @@ class App extends react_1.Component {
                         react_1.default.createElement("label", { htmlFor: 'username-input' }, "Username: "),
                         react_1.default.createElement("input", { id: "username-input", type: "text" }),
                         react_1.default.createElement("label", { htmlFor: 'password-input' }, "Password: "),
-                        react_1.default.createElement("input", { id: "password-input", type: "password" }),
+                        react_1.default.createElement("input", { id: "password-input", type: "password", className: this.state.animate ? "animate" : "" }),
                         react_1.default.createElement("div", { id: "remember" },
                             react_1.default.createElement("input", { id: "remember-check", type: "checkbox" }),
                             react_1.default.createElement("label", { htmlFor: 'remember-check' }, "Remember Me ")),

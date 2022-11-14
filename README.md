@@ -28,6 +28,6 @@ Navigate to http://localhost:3000 to view the demo
 ### Notes
 There is a default username and password setup which the system will authenticate onto which is
 
-Username - marinezak@gmail.com
+Username - FourthFloor
 
 Password - testpassword1
