@@ -1,13 +1,12 @@
 import React, {ChangeEvent, Component} from 'react'
 import {TabulatorFull as Tabulator} from 'tabulator-tables';
-import { neoObject, APIDefaultResp, APINEOResp, Distance, estimateDiameter, NEOEncounter } from './@types'
-import Encounter from './components/neoEncounters/neoEncounters'
-import NEOEntry from './components/neoEntry/neoEntry'
-import { APIKEY } from './constants'
+import { neoObject, APIDefaultResp, APINEOResp, estimateDiameter, NEOEncounter } from './@types'
+import { APIKEY, NASAURL } from './constants'
 import './app.scss'
 import './tabular.scss'
+import { inputOnchange, validateInputKeyPress } from './validators';
 
-declare type state = {
+interface state{
     neoObjects: neoObject[],
     prevEncounters: NEOEncounter[]
     nextEncounters: NEOEncounter[],
@@ -58,7 +57,7 @@ export default class App extends Component<{}, state>{
                     // paginationSize:5,
                     columns:[ //Define Table Columns
                         {title:"Name", field:"name"},
-                        {title:"Diameter (km)", field:"estimatedDiameter"},
+                        {title:"Diameter (m)", field:"estimatedDiameter"},
                         {title:"Hazard", field:"hazard"},
                         {title:"Sentry Object", field:"sentry"},
                     ],
@@ -136,65 +135,9 @@ export default class App extends Component<{}, state>{
             name: neo.name,
             hazard: neo.is_potentially_hazardous_asteroid,
             sentry: neo.is_sentry_object,
-            estimatedDiameter: Math.floor(((neo.estimated_diameter["kilometers"].estimated_diameter_max + neo.estimated_diameter["kilometers"].estimated_diameter_min) / 2) * 100) / 100,
+            estimatedDiameter: Math.floor(((neo.estimated_diameter["meters"].estimated_diameter_max + neo.estimated_diameter["meters"].estimated_diameter_min) / 2) * 100) / 100,
             self: neo.links.self
         }
-    }
-
-    inputOnchange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-        //validate that the dates are within 7 days of each other due to restriction of the API
-        if (e.currentTarget.value.length === 10){
-            // retrieve input elements
-            let startInput = document.getElementById("start-input") as HTMLInputElement
-            let endInput = document.getElementById("end-input") as HTMLInputElement
-
-            // convert dates to JavaScript date objects
-            let startDate = new Date(startInput.value)
-            let endDate = new Date(endInput.value)
-
-            // calculate the number of days between the start and end
-            // the initial minus of dates returns the output in milliseconds and as such we have to convert to days
-            let dayDiff = Math.ceil((endDate.getTime() - startDate.getTime())  / (1000 * 60 * 60 * 24))
-        
-            // if the start date is after the end date set the end date to the start date
-            //note this also catches if the user enters a end date before the start date
-            if (startDate > endDate)
-                endInput.value = startDate.toISOString().split("T")[0]
-            // if the difference is greater than 7 set the dates to exactly 7 days so as to always have valid dates for the api request
-            else if ((dayDiff < -7 || dayDiff > 7)){
-                if (e.currentTarget.id === "start-input"){
-                    endDate.setDate(startDate.getDate() + 7)
-                    endInput.value = endDate.toISOString().split("T")[0]
-                }
-                else if (e.currentTarget.id === "end-input"){
-                    startDate.setDate(startDate.getDate() - 7)
-                    startInput.value = endDate.toISOString().split("T")[0]
-                }
-            }
-        }
-    }
-
-    validateInputKeyPress (e: React.KeyboardEvent<HTMLInputElement>): void{
-        //check if key is a number
-        if (!parseInt(e.key)){
-            // if the backspace allow default event to happen
-            if (e.key === "Backspace") {
-                //check if we hit a - to remove that as well so the user can get past them
-                let value = e.currentTarget.value
-                if (value.substring(value.length - 1) === "-"){
-                    value = value.slice(value.length - 1)
-                }
-                return
-            }
-            // if key or 0 or arrow keys and dash return to allow default event to happen
-            if (e.key === "0" || e.key.includes("Arrow") || e.key === "-") return
-            //If any other key prevent default so that the user cannot enter non numeric characters
-            e.preventDefault();
-        }
-        
-        // if we are at 10 characters, length of YYYY-MM-DD format, prevent default so the user cannot add information 
-        // and therefore increasing the length of the input past length of YYYY-MM-DD
-        if (e.currentTarget.value.length >= 10) e.preventDefault()
     }
 
     requestNewData = (e: React.MouseEvent<HTMLButtonElement>): void => {
@@ -207,7 +150,7 @@ export default class App extends Component<{}, state>{
         if (Number.isNaN(Date.parse(startDate)) || Number.isNaN(Date.parse(endDate))) return
 
         // fetch data from API
-        fetch("https://api.nasa.gov/neo/rest/v1/feed?start_date=" + startDate + "&end_date=" + endDate + "&api_key=" + APIKEY)
+        fetch(NASAURL + startDate + "&end_date=" + endDate + "&api_key=" + APIKEY)
         .then((resp) => resp.json())
         .then((data: APIDefaultResp) => {
             //convert all NEOs from the API into simpler objects containing the information we want to render
@@ -287,8 +230,8 @@ export default class App extends Component<{}, state>{
     }
 
     requestEcounter = (self: string) => {
-        //replacing http with https due to local hosting and the self link generating a http request
-        let url = self.replace("http://", "https://")
+        //replacing http with https due to local hosting and the self link generating a http url
+        const url = self.replace("http://", "https://")
         fetch(url)
         .then((resp) => resp.json())
         .then((data: APINEOResp) => {
@@ -304,12 +247,12 @@ export default class App extends Component<{}, state>{
             if (earthEnvoutnerAfter.length > 5) earthEnvoutnerAfter.length = 5
 
             //convert into objects to be rendered into the table
-            let prevEncounters = earthEncountersBefore.map(el => {return {
+            const prevEncounters = earthEncountersBefore.map(el => {return {
                 date: el.close_approach_date,
                 speed: (Math.floor(parseFloat(el.relative_velocity.kilometers_per_hour) * 100) / 100).toString(),
                 distance: (Math.floor(parseFloat(el.miss_distance.kilometers) * 100) / 100).toString()
             }})
-            let nextEncounters = earthEnvoutnerAfter.map(el => {return {
+            const nextEncounters = earthEnvoutnerAfter.map(el => {return {
                 date: el.close_approach_date,
                 speed: (Math.floor(parseFloat(el.relative_velocity.kilometers_per_hour) * 100) / 100).toString(),
                 distance: (Math.floor(parseFloat(el.miss_distance.kilometers) * 100) / 100).toString()
@@ -339,9 +282,9 @@ export default class App extends Component<{}, state>{
                     <p>Note: Start and End dates must be within 7 days of each other</p>
 
                     <label htmlFor="start-input">Start Date</label>
-                    <input id="start-input" className="date-input" type="text" defaultValue="2015-09-07" name="Start Date" onChange={this.inputOnchange} onKeyDown={this.validateInputKeyPress}></input>
+                    <input id="start-input" className="date-input" type="text" defaultValue="2015-09-07" name="Start Date" onChange={inputOnchange} onKeyDown={validateInputKeyPress}></input>
                     <label htmlFor="end-input">End Date</label>
-                    <input id="end-input" className="date-input" type="text" defaultValue="2015-09-07" name="End Date" onChange={this.inputOnchange} onKeyDown={this.validateInputKeyPress}></input>
+                    <input id="end-input" className="date-input" type="text" defaultValue="2015-09-07" name="End Date" onChange={inputOnchange} onKeyDown={validateInputKeyPress}></input>
                     <button onClick={this.requestNewData}>Request NEOs</button>
                 </div>
                 <div id="spacer"/>

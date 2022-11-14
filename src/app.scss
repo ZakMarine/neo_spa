@@ -7,6 +7,9 @@ $primary-background: #141416;
 // $secondary-background: #7475725c;
 $secondary-background: #3c373e;
 
+body{
+    background-color: $secondary-background;
+}
 
 #root{
     display: flex;

@@ -28,6 +28,7 @@ const tabulator_tables_1 = require("tabulator-tables");
 const constants_1 = require("./constants");
 require("./app.scss");
 require("./tabular.scss");
+const validators_1 = require("./validators");
 class App extends react_1.Component {
     constructor(props) {
         super(props);
@@ -42,37 +43,16 @@ class App extends react_1.Component {
                 name: neo.name,
                 hazard: neo.is_potentially_hazardous_asteroid,
                 sentry: neo.is_sentry_object,
-                estimatedDiameter: Math.floor(((neo.estimated_diameter["kilometers"].estimated_diameter_max + neo.estimated_diameter["kilometers"].estimated_diameter_min) / 2) * 100) / 100,
+                estimatedDiameter: Math.floor(((neo.estimated_diameter["meters"].estimated_diameter_max + neo.estimated_diameter["meters"].estimated_diameter_min) / 2) * 100) / 100,
                 self: neo.links.self
             };
-        };
-        this.inputOnchange = (e) => {
-            if (e.currentTarget.value.length === 10) {
-                let startInput = document.getElementById("start-input");
-                let endInput = document.getElementById("end-input");
-                let startDate = new Date(startInput.value);
-                let endDate = new Date(endInput.value);
-                let dayDiff = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
-                if (startDate > endDate)
-                    endInput.value = startDate.toISOString().split("T")[0];
-                else if ((dayDiff < -7 || dayDiff > 7)) {
-                    if (e.currentTarget.id === "start-input") {
-                        endDate.setDate(startDate.getDate() + 7);
-                        endInput.value = endDate.toISOString().split("T")[0];
-                    }
-                    else if (e.currentTarget.id === "end-input") {
-                        startDate.setDate(startDate.getDate() - 7);
-                        startInput.value = endDate.toISOString().split("T")[0];
-                    }
-                }
-            }
         };
         this.requestNewData = (e) => {
             let startDate = document.getElementById("start-input").value;
             let endDate = document.getElementById("end-input").value;
             if (Number.isNaN(Date.parse(startDate)) || Number.isNaN(Date.parse(endDate)))
                 return;
-            fetch("https://api.nasa.gov/neo/rest/v1/feed?start_date=" + startDate + "&end_date=" + endDate + "&api_key=" + constants_1.APIKEY)
+            fetch(constants_1.NASAURL + startDate + "&end_date=" + endDate + "&api_key=" + constants_1.APIKEY)
                 .then((resp) => resp.json())
                 .then((data) => {
                 let neo = data.near_earth_objects[startDate].map(el => this.apiToNeoObject(el));
@@ -117,7 +97,7 @@ class App extends react_1.Component {
             });
         };
         this.requestEcounter = (self) => {
-            let url = self.replace("http://", "https://");
+            const url = self.replace("http://", "https://");
             fetch(url)
                 .then((resp) => resp.json())
                 .then((data) => {
@@ -128,14 +108,14 @@ class App extends react_1.Component {
                     earthEncountersBefore.length = 5;
                 if (earthEnvoutnerAfter.length > 5)
                     earthEnvoutnerAfter.length = 5;
-                let prevEncounters = earthEncountersBefore.map(el => {
+                const prevEncounters = earthEncountersBefore.map(el => {
                     return {
                         date: el.close_approach_date,
                         speed: (Math.floor(parseFloat(el.relative_velocity.kilometers_per_hour) * 100) / 100).toString(),
                         distance: (Math.floor(parseFloat(el.miss_distance.kilometers) * 100) / 100).toString()
                     };
                 });
-                let nextEncounters = earthEnvoutnerAfter.map(el => {
+                const nextEncounters = earthEnvoutnerAfter.map(el => {
                     return {
                         date: el.close_approach_date,
                         speed: (Math.floor(parseFloat(el.relative_velocity.kilometers_per_hour) * 100) / 100).toString(),
@@ -170,7 +150,7 @@ class App extends react_1.Component {
                     rowHeight: 40,
                     columns: [
                         { title: "Name", field: "name" },
-                        { title: "Diameter (km)", field: "estimatedDiameter" },
+                        { title: "Diameter (m)", field: "estimatedDiameter" },
                         { title: "Hazard", field: "hazard" },
                         { title: "Sentry Object", field: "sentry" },
                     ],
@@ -215,22 +195,6 @@ class App extends react_1.Component {
             }
         }
     }
-    validateInputKeyPress(e) {
-        if (!parseInt(e.key)) {
-            if (e.key === "Backspace") {
-                let value = e.currentTarget.value;
-                if (value.substring(value.length - 1) === "-") {
-                    value = value.slice(value.length - 1);
-                }
-                return;
-            }
-            if (e.key === "0" || e.key.includes("Arrow") || e.key === "-")
-                return;
-            e.preventDefault();
-        }
-        if (e.currentTarget.value.length >= 10)
-            e.preventDefault();
-    }
     render() {
         return react_1.default.createElement(react_1.default.Fragment, null,
             react_1.default.createElement("div", { id: "top-container", className: 'column-container' },
@@ -240,9 +204,9 @@ class App extends react_1.Component {
                     react_1.default.createElement("p", null, "Date Format: YYYY-MM-DD"),
                     react_1.default.createElement("p", null, "Note: Start and End dates must be within 7 days of each other"),
                     react_1.default.createElement("label", { htmlFor: "start-input" }, "Start Date"),
-                    react_1.default.createElement("input", { id: "start-input", className: "date-input", type: "text", defaultValue: "2015-09-07", name: "Start Date", onChange: this.inputOnchange, onKeyDown: this.validateInputKeyPress }),
+                    react_1.default.createElement("input", { id: "start-input", className: "date-input", type: "text", defaultValue: "2015-09-07", name: "Start Date", onChange: validators_1.inputOnchange, onKeyDown: validators_1.validateInputKeyPress }),
                     react_1.default.createElement("label", { htmlFor: "end-input" }, "End Date"),
-                    react_1.default.createElement("input", { id: "end-input", className: "date-input", type: "text", defaultValue: "2015-09-07", name: "End Date", onChange: this.inputOnchange, onKeyDown: this.validateInputKeyPress }),
+                    react_1.default.createElement("input", { id: "end-input", className: "date-input", type: "text", defaultValue: "2015-09-07", name: "End Date", onChange: validators_1.inputOnchange, onKeyDown: validators_1.validateInputKeyPress }),
                     react_1.default.createElement("button", { onClick: this.requestNewData }, "Request NEOs")),
                 react_1.default.createElement("div", { id: "spacer" })),
             react_1.default.createElement("div", { id: "bottom-container", className: 'column-container' },
